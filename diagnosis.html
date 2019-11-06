@@ -89,12 +89,12 @@
                         <span class="login100-form-title p-b-26">
                             Upload the fundus scan
                         </span>
-                            <input class="input100" type="file" name="pass" required="required">
+                            <input onchange="encode();" class="input100" type="file" name="fundus_image" id="fundus_image" required="required">
 
                         <div class="container-login100-form-btn">
                             <div class="wrap-login100-form-btn">
                                 <div class="login100-form-bgbtn"></div>
-                                <button class="login100-form-btn" onClick="loading_start()">
+                                <button class="login100-form-btn" onClick="upload()">
                                     Upload & Go
                                 </button>
                             </div>
@@ -148,6 +148,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
         <!-- loader part starts-->
     <!-- loader part ends-->        
 <script type="text/javascript">
+    var base64string = null;
     function load_checker(){
         if (localStorage.getItem("auth_token")==null) {
             localStorage.clear();
@@ -170,7 +171,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
     function loading_end(){
         var loader = document.getElementById("loader");
-        loader.style.display = "none";
+        loader.style.visibility= "hidden";
     }
 
     function logout(){
@@ -184,7 +185,47 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
         }).then((result) => {
             window.location="login.html";
         })
-    } 
+    }
+
+    function encode() {
+        var selectedfile = document.getElementById("fundus_image").files;
+        if (selectedfile.length > 0) {
+          var imageFile = selectedfile[0];
+          var fileReader = new FileReader();
+          fileReader.onload = function(fileLoadedEvent) {
+            var srcData = fileLoadedEvent.target.result;
+            base64string = srcData
+            //console.log(base64string);
+          }
+          fileReader.readAsDataURL(imageFile);
+        }
+      }
+
+      function upload(){
+        if(base64string !== null){
+            loading_start();
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if (request.readyState == 4){
+                    loading_end();
+                    var response = JSON.parse(this.responseText);
+                    console.log(response);
+                }
+            };
+            request.open("POST", "http://localhost:8000/api/vision/detect_dr", false);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            request.setRequestHeader('Authorization', 'Token ' + localStorage.getItem("auth_token"));
+            request.send("image_base64="+base64string);
+        }
+        else{
+            Swal.fire({
+              type: 'error',
+              title: 'Oops...',
+              text: 'Select an image first',
+              allowOutsideClick: false,
+            })
+        }
+      } 
 </script>
 </body>
 
