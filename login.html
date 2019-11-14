@@ -167,7 +167,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
                     confirmButtonText: 'Continue as '+localStorage.getItem("username")
                 }).then((result) => {
                     if (result.value) {
-                        window.location="diagnosis.html";
+                        window.location="http://localhost:8000/api/vision/detect_dr";
                     }
                     else{
                         localStorage.clear();
@@ -186,7 +186,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
                     if("token" in response){
                         localStorage.setItem("auth_token", response["token"]);
                         get_user_details(localStorage.getItem("auth_token"));
-                        window.location="diagnosis.html";
+                        window.location="http://localhost:8000/api/vision/detect_dr";
                     }
                     else{
                         localStorage.clear();
